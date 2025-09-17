@@ -23,8 +23,76 @@
 
         </div>
         <script>
-            function getData() {
- 
+            
+            const elemid = document.getElementById("limit");
+            elemid.addEventListener("change",  () => getData());
+
+            async function getData() {
+                const limitVal = document.querySelector("#limit").value;
+                const data_type = document.querySelector("#type").value;
+
+                try{
+                    const response = await axios.get("/data",{
+                        "params":{
+                            "type": data_type,
+                            "limit": limitVal
+                        }
+                    })
+                    createtable(response.data);
+                }catch(error){
+                    console.error("Error fetching data:", error);
+                }
+            }
+
+            function createtable(dataObj){
+            
+                const resultDiv = document.getElementById("result");
+
+                while(resultDiv.firstChild){
+                    resultDiv.firstChild.remove();
+                }
+
+                const h2elem = document.createElement("h2");
+                const h2Val = dataObj["type"];
+                h2elem.innerText = h2Val;
+
+                resultDiv.appendChild(h2elem);
+
+                const tableElem = document.createElement("table");
+                tableElem.className = "table";
+                const tBodyElem = document.createElement("tbody");
+
+                // th row
+                const trElem = document.createElement("tr");
+                // retrieve keys from first obj 
+                const tbHeadings = Object.keys(dataObj["records"][0]);
+
+                for(const headingval of tbHeadings){
+                    const thElem = document.createElement("th");
+                    thElem.innerText = headingval;
+                    trElem.appendChild(thElem);
+                }
+
+                tBodyElem.appendChild(trElem);
+                tableElem.appendChild(tBodyElem);
+                resultDiv.appendChild(tableElem);
+
+                // Retrieve values
+                const tbvalue = dataObj["records"];
+                for(const data_obj of tbvalue){
+                    const data_obj_value = Object.values(data_obj);
+                    const trElem = document.createElement("tr");
+
+                    for(const data_obj_value1 of data_obj_value){
+                        const tdElem = document.createElement("td");
+                        tdElem.innerText = data_obj_value1;
+                        trElem.appendChild(tdElem);
+                    }
+                    tBodyElem.appendChild(trElem);
+                }
+
+                tableElem.appendChild(tBodyElem);
+                resultDiv.appendChild(tableElem);
             }
 
         </script>
